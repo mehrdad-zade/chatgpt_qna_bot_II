@@ -1,44 +1,30 @@
-'''
-pip install gpt_index
-pip install langchain
-'''
+import youtubeVideoDownloader
+from formatter_custom import mp4_2_wav
+from nlp_azure import azure_speech_to_text
+from vectorizeData import qNa, createVectorIndex
 
-from gpt_index import SimpleDirectoryReader, GPTListIndex, GPTSimpleVectorIndex, LLMPredictor, PromptHelper
-from langchain import OpenAI
-import sys
-import os
-from secrets_custom import credentialsOpenAI
+def main():
+    '''
+    # provide a youtube link to be dlownloaded as mp4
+    youtube_link = "https://www.youtube.com/watch?v=Rwgux6vo9qs"
+    youtubeVideoDownloader.getAudioFrom(youtube_link, output_path='source_of_knowledge', file_name='youtubeAudio.mp4')
 
-def createVectorIndex(path):
+    # convert mp4 to mav
+    mp4_2_wav("source_of_knowledge/youtubeAudio.mp4")
+    '''
 
-    os.environ["OPENAI_API_KEY"] = credentialsOpenAI()
-
-    max_input = 4096
-    tokens = 256
-    chunk_size = 600
-    max_chunk_overlap = 20
-
-    prompt_helper = PromptHelper(max_input, tokens, max_chunk_overlap, chunk_size_limit=chunk_size)
-
-    #define LLM
-    llmPredictor = LLMPredictor(llm=OpenAI(temperature=0, model_name="text-ada-001", max_token=tokens)) #text-davinci-003
-
-    #load data
-    docs = SimpleDirectoryReader(path).load_data()
-
-    #create vector index
-    vectorIndex = GPTSimpleVectorIndex(documents=docs, llm_predictor=llmPredictor, prompt_helper=prompt_helper)
-    vectorIndex.save_to_disk('vectorIndex.json')
-
-    return vectorIndex
+    # converts audio to txt and writes the result to source_of_knowledge/output.txt
+    print("-------------------------------------------")
+    azure_speech_to_text('source_of_knowledge/output.wav') 
+    print("-------------------------------------------")
 
 
-def qNa(vectorIndex):
-    vIndex = GPTSimpleVectorIndex.load_from_disk(vectorIndex)
-    while True:
-        prompt = input('Please ask your question here: ')
-        response = vIndex.query(prompt, response_mode="compact")
-        print(f"Response: {response} \n")
+    vectorIndex = createVectorIndex('source_of_knowledge/output.txt')
+    qNa('source_of_knowledge/vectorIndex.json')
 
-vectorIndex = createVectorIndex('source_of_knowledge')
-qNa('vectorIndex.json')
+
+if __name__ == "__main__":
+    main()
+
+
+
