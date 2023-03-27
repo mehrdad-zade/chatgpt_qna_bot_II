@@ -27,7 +27,7 @@ def createVectorIndex(path):
     #load data
     docs = SimpleDirectoryReader(path).load_data()
 
-    #create vector index
+        
     vectorIndex = GPTSimpleVectorIndex(documents=docs, llm_predictor=llmPredictor, prompt_helper=prompt_helper)
     vectorIndex.save_to_disk('source_of_knowledge/vectorIndex.json')
 
@@ -44,5 +44,5 @@ def qNa(vectorIndex):
             print("Bot:- Goodbye!")
             break
 
-# vectorIndex = createVectorIndex('source_of_knowledge')
-# qNa('vectorIndex.json')
+# vectorIndex = createVectorIndex('source_of_knowledge/data')
+# qNa('source_of_knowledge/vectorIndex.json')
